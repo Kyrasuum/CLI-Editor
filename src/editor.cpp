@@ -58,11 +58,10 @@
     Functions
 */////////////////////////////
     //Constructors
-        editor::editor():TProgInit(
-            &editor::initStatusLine,
-            &editor::initMenuBar,
-            &editor::initDeskTop
-        ){
+        editor::editor(){
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+        
             this->file = NULL;
             this->dir = NULL;
         }
@@ -72,32 +71,73 @@
         }
     //Destructors
         editor::~editor(){
+            ImTui_ImplText_Shutdown();
+            ImTui_ImplNcurses_Shutdown();
         }
-    //Handle Events
-        void editor::handleEvent(TEvent& event){
-            TApplication::handleEvent(event);
-            if(event.what == evCommand){
-                switch(event.message.command){
-                    default:
-                    break;
+    //Run
+        void editor::run(){
+            auto screen = ImTui_ImplNcurses_Init(true);
+            ImTui_ImplText_Init();
+
+            bool demo = true;
+            int nframes = 0;
+        
+            for (;;) {
+                ImTui_ImplNcurses_NewFrame();
+                ImTui_ImplText_NewFrame();
+        
+                ImGui::NewFrame();
+
+                ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+                ImGuiIO& io = ImGui::GetIO();
+                io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+                io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+                io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+                io.ConfigInputTextCursorBlink = true;
+
+                auto wSize = ImGui::GetIO().DisplaySize;
+                ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(wSize, ImGuiCond_Always);
+
+                ImGui::Begin("Hello, world!", nullptr,
+                    ImGuiWindowFlags_NoCollapse |
+                    ImGuiWindowFlags_NoResize |
+                    ImGuiWindowFlags_NoMove |
+                    ImGuiWindowFlags_MenuBar |
+                    ImGuiWindowFlags_NoTitleBar
+                );
+
+                if (ImGui::BeginMenuBar())
+                {
+                    if (ImGui::BeginMenu("File"))
+                    {
+                        if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+                        if (ImGui::MenuItem("Save", "Ctrl+S"))   { /* Do stuff */ }
+                        if (ImGui::MenuItem("Close", "Ctrl+W"))  { /* Do stuff */ }
+                        if (ImGui::MenuItem("Quit", "Ctrl+Q"))  { break; }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenuBar();
                 }
+
+                ImGui::Text("Mouse Pos : x = %g, y = %g", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+                ImGui::Text("Time per frame %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+
+                ImGui::PopStyleColor(1);
+                ImGui::PopStyleColor(1);
+                ImGui::PopStyleColor(1);
+                ImGui::PopStyleColor(1);
+        
+                ImGui::Render();
+        
+                ImTui_ImplText_RenderDrawData(ImGui::GetDrawData(), screen);
+                ImTui_ImplNcurses_DrawScreen();
             }
-        }
-    //Status Line
-        TMenuBar * editor::initMenuBar(TRect rect){
-            rect.b.y = rect.a.y+1;
-            return new TMenuBar(rect, 
-                *new TSubMenu( "~Esc~-Menu", kbEsc ) +
-                *new TMenuItem( "~Q~uit", cmQuit, cmQuit, hcNoContext, "Ctrl-Q" )
-            );
-        }
-    //Menu Bar
-        TStatusLine * editor::initStatusLine(TRect rect){
-            rect.a.y = rect.b.y-1;
-            return new TStatusLine(rect, 
-                *new TStatusDef( 0, 0xFFFF ) +
-                *new TStatusItem( "~Ctrl-Q~ ~Q~uit", kbCtrlQ, cmQuit ) +
-                *new TStatusItem( 0, kbEsc, cmMenu )
-            );
+
         }
 //End of file
