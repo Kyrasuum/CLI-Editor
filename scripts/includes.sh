@@ -1,7 +1,7 @@
 #!/bin/bash
 function get_includes {
 	prefix=`echo $1 | grep -oE '([a-zA-Z\.]*/)*'`
-	for include in `grep '#include \"[a-zA-Z/\.]*\.h\"' $1 | grep -o '[a-zA-Z/\.]*\.h'`
+	for include in `grep '#include \"[a-zA-Z/\.]*\.hpp\"' $1 | grep -o '[a-zA-Z/\.]*\.hpp'`
 	do
 		simplify_path $prefix$include
 	done

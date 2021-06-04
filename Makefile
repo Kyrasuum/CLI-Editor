@@ -1,14 +1,14 @@
 #########################
 #Main Makefile
 #########################
-CCW32 = i686-w64-mingw32-gcc
-CCW64 = x86_64-w64-mingw32-gcc
-CCL = gcc
-CFLAGS = -w -g
-LIBSL = -lmenu -lpanel -lform -lncurses
-LIBSM =	-lmenu -lpanel -lform -lncurses
-LIBSW32 = -L/usr/lib/x86_64-linux-gnu/ -lmenu -lpanel -lform -lncurses
-LIBSW64 = -L/usr/lib/x86_64-linux-gnu/ -lmenu -lpanel -lform -lncurses
+CCW32 = i686-w64-mingw32-g++
+CCW64 = x86_64-w64-mingw32-g++
+CCL = g++
+CFLAGS = -std=c++14 -w -g
+LIBSL = ./bin/libtvision.a -Iinclude -lncursesw -lgpm
+LIBSM =	./bin/libtvision.a -Iinclude -lncursesw -lgpm
+LIBSW32 = -L/usr/lib/x86_64-linux-gnu/ ./bin/libtvision.a -Iinclude -lncursesw -lgpm
+LIBSW64 = -L/usr/lib/x86_64-linux-gnu/ ./bin/libtvision.a -Iinclude -lncursesw -lgpm
 EXTL = .pe
 EXTM = .mac
 EXTW32 = .x32.exe
