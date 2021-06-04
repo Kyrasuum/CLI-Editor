@@ -1,4 +1,4 @@
-main = ../../src/main.c
+main = ../../src/main.cpp
 deps = ""
 .PHONY: all
 all:

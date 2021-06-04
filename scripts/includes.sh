@@ -61,7 +61,7 @@ function recursive_update {
 	for file in $includes
 	do
 		source=`echo $file | grep -oE "^(../)*[a-zA-Z/]*[a-zA-Z]+"`
-		source=`echo $source.c`
+		source=`echo $source.cpp`
 		if [[ -f $source ]]
 		then
 			check_update $source $2 $3
