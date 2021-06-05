@@ -1,7 +1,7 @@
 #!/bin/bash
 function get_includes {
-	prefix=`echo $1 | grep -oE '([a-zA-Z\.]*/)*'`
-	for include in `grep '#include \"[a-zA-Z/\.]*\.hpp\"' $1 | grep -o '[a-zA-Z/\.]*\.hpp'`
+	prefix=`echo $1 | grep -oE '([a-zA-Z\.\-]*/)*'`
+	for include in `grep '#include \"[a-zA-Z/\.\-]*\.hpp\"' $1 | grep -o '[a-zA-Z/\.\-]*\.hpp'`
 	do
 		simplify_path $prefix$include
 	done
@@ -32,7 +32,7 @@ function simplify_path {
 }
 
 function object_file {
-	file=`echo $1 | grep -oE "[a-zA-Z]*\.[cp]+" | grep -oE "^[a-zA-Z]*"`
+	file=`echo $1 | grep -oE "[a-zA-Z\-]*\.[cp]+" | grep -oE "^[a-zA-Z\-]*"`
 	file=`echo $file.o`
 	echo $file
 }
@@ -60,7 +60,7 @@ function recursive_update {
 
 	for file in $includes
 	do
-		source=`echo $file | grep -oE "^(../)*[a-zA-Z/]*[a-zA-Z]+"`
+		source=`echo $file | grep -oE "^(../)*[a-zA-Z/]*[a-zA-Z\-]+"`
 		source=`echo $source.cpp`
 		if [[ -f $source ]]
 		then

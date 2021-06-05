@@ -1,8 +1,8 @@
 /*////////////////////////////
     Includes
 */////////////////////////////
-    #include "../deps/imtui/imtui.h"
-    #include "../deps/imtui/imtui-impl-ncurses.h"
+    #include "../imtui/imtui.hpp"
+    #include "../imtui/imtui-ncurses.hpp"
 
 /*////////////////////////////
     Defines

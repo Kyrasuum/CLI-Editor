@@ -79,19 +79,26 @@
             auto screen = ImTui_ImplNcurses_Init(true);
             ImTui_ImplText_Init();
 
-            bool demo = true;
-            int nframes = 0;
-        
-            for (;;) {
+
+            ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0.784f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.47f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.45f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.3f, 1.0f, 1.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.15f, 0.15f, 0.15f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.35f, 0.35f, 0.35f, 1.0f));
+
+            for (;;){
                 ImTui_ImplNcurses_NewFrame();
                 ImTui_ImplText_NewFrame();
         
                 ImGui::NewFrame();
-
-                ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
                 ImGuiIO& io = ImGui::GetIO();
                 io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -99,11 +106,11 @@
                 io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
                 io.ConfigInputTextCursorBlink = true;
 
-                auto wSize = ImGui::GetIO().DisplaySize;
+                auto wSize = io.DisplaySize;
                 ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-                ImGui::SetNextWindowSize(wSize, ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(wSize.x, wSize.y-1), ImGuiCond_Always);
 
-                ImGui::Begin("Hello, world!", nullptr,
+                ImGui::Begin("Main", nullptr,
                     ImGuiWindowFlags_NoCollapse |
                     ImGuiWindowFlags_NoResize |
                     ImGuiWindowFlags_NoMove |
@@ -111,28 +118,45 @@
                     ImGuiWindowFlags_NoTitleBar
                 );
 
-                if (ImGui::BeginMenuBar())
-                {
-                    if (ImGui::BeginMenu("File"))
-                    {
-                        if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-                        if (ImGui::MenuItem("Save", "Ctrl+S"))   { /* Do stuff */ }
-                        if (ImGui::MenuItem("Close", "Ctrl+W"))  { /* Do stuff */ }
-                        if (ImGui::MenuItem("Quit", "Ctrl+Q"))  { break; }
+                if (ImGui::BeginMenuBar()){
+                    if (ImGui::BeginMenu("File ")){
+                        if (ImGui::MenuItem(" Open", "Ctrl+O")){}
+                        if (ImGui::MenuItem(" Save", "Ctrl+S")){}
+                        if (ImGui::MenuItem(" Close", "Ctrl+W")){}
+                        if (ImGui::MenuItem(" Quit", "Ctrl+Q")){break;}
                         ImGui::EndMenu();
                     }
+                    ImGui::Button("Tab ");
                     ImGui::EndMenuBar();
                 }
+                
+                if (io.KeysDown[CTRL_KEY('q')]){break;}
+                
 
-                ImGui::Text("Mouse Pos : x = %g, y = %g", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
-                ImGui::Text("Time per frame %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                
+                ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::BeginChild("File");
+                for (u_int64_t iter = 0; iter < 512; iter++){
+                    if (io.KeysDown[iter]){
+                        ImGui::Text("Key Pressed %d", iter);
+                    }
+                }
+                ImGui::EndChild();
+                ImGui::PopStyleColor(1);
+                
+                ImGui::End();
+                ImGui::SetNextWindowPos(ImVec2(0, wSize.y-1), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(wSize.x, 1), ImGuiCond_Always);
+                
+                ImGui::Begin("StatusBar", nullptr,
+                    ImGuiWindowFlags_NoCollapse |
+                    ImGuiWindowFlags_NoResize |
+                    ImGuiWindowFlags_NoMove |
+                    ImGuiWindowFlags_NoTitleBar
+                );
+                ImGui::Text("Mouse Pos : x = %g, y = %g\tTime per frame %.3f ms/frame (%.1f FPS)", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
                 ImGui::End();
 
-                ImGui::PopStyleColor(1);
-                ImGui::PopStyleColor(1);
-                ImGui::PopStyleColor(1);
-                ImGui::PopStyleColor(1);
-        
                 ImGui::Render();
         
                 ImTui_ImplText_RenderDrawData(ImGui::GetDrawData(), screen);

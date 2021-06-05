@@ -5,9 +5,9 @@
 #pragma once
 
 // simply expose the existing Dear ImGui API
-#include "imgui/imgui.h"
+#include "../../deps/imgui/imgui.h"
 
-#include "imtui/imtui-impl-text.h"
+#include "imtui-text.hpp"
 
 #include <cstring>
 #include <cstdint>

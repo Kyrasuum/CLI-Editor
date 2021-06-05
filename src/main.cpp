@@ -3,7 +3,7 @@
 */////////////////////////////
     #include <argp.h>
     #include <stdlib.h>
-    #include "editor.hpp"
+    #include "editor/editor.hpp"
 
 /*////////////////////////////
     Defines
