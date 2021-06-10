@@ -3,6 +3,9 @@
 */////////////////////////////
     #include <argp.h>
     #include <stdlib.h>
+    #include <errno.h>
+    #include <stdio.h>
+    #include <unistd.h>
     #include "editor/editor.hpp"
 
 /*////////////////////////////
@@ -13,6 +16,7 @@
     #define ARGS_DOC            "FILE DIR"
     #define DEFAULT_FILE        NULL
     #define DEFAULT_DIR         NULL
+    #define MAX_PATH_SIZE       256
 
 /*////////////////////////////
     Structs
@@ -61,6 +65,19 @@
                 argp_t argp = {options, parse_opt, ARGS_DOC, PROG_DOC, 0, 0, 0};
                 argp_parse(&argp, argc, argv, 0, 0, &args);
 
+                //check if directory was set
+                if (args.dir == DEFAULT_DIR){
+                    char * curr_wd = (char*)calloc(MAX_PATH_SIZE, sizeof(char));
+                    if (NULL == curr_wd){
+                        fprintf(stderr, "%s", "main - calloc");
+                    }
+                    if (NULL != getcwd(curr_wd, MAX_PATH_SIZE)){
+                        args.dir = curr_wd;
+                    }else{
+                        fprintf(stderr, "%s", "main - getcwd");
+                    }
+                }
+                
                 editor program = editor(args.file, args.dir);
                 program.run();
                 //exit

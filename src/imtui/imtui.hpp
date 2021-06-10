@@ -15,13 +15,13 @@
 namespace ImTui {
 
 using TChar = unsigned char;
-using TColor = unsigned char;
+using TColor = uint32_t;
 
 // single screen cell
-// 0x0000FFFF - char
-// 0x00FF0000 - foreground color
-// 0xFF000000 - background color
-using TCell = uint32_t;
+// 0x000000000000FFFF - char
+// 0x000000FFFFFF0000 - foreground color
+// 0xFFFFFF0000000000 - background color
+using TCell = uint64_t;
 
 struct TScreen {
     int nx = 0;

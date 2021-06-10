@@ -65,7 +65,7 @@ void ScanLine(int x1, int y1, int x2, int y2, int ymax, std::vector<int> & xrang
 
 static std::vector<int> g_xrange;
 
-void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, ImTui::TScreen * screen) {
+void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, uint32_t col, ImTui::TScreen * screen) {
     int ymin = std::min(std::min(std::min((float) screen->size(), p0.y), p1.y), p2.y);
     int ymax = std::max(std::max(std::max(0.0f, p0.y), p1.y), p2.y);
 
@@ -91,10 +91,21 @@ void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, ImTui::TSc
 
             while (len--) {
                 if (x >= 0 && x < screen->nx && y + ymin >= 0 && y + ymin < screen->ny) {
-                    auto & cell = screen->data[(y + ymin)*screen->nx + x];
-                    cell &= 0x00FF0000;
+                    uint64_t & cell = screen->data[(y + ymin)*screen->nx + x];
+                    
+                    cell &= 0x000000FFFFFF0000;
                     cell |= ' ';
-                    cell |= ((ImTui::TCell)(col) << 24);
+                    uint64_t a = (col & 0xFF000000) >> 24;
+                    uint64_t r = (col & 0x00FF0000) >> 16;
+                    uint64_t g = (col & 0x0000FF00) >> 8;
+                    uint64_t b = (col & 0x000000FF);
+
+                    float scale = float(a)/255.0f;
+                    r = std::round(r*scale);
+                    g = std::round(g*scale);
+                    b = std::round(b*scale);
+
+                    cell |= uint64_t((r << 16) | (g << 8) | b) << 40;
                 }
                 ++x;
             }
@@ -191,9 +202,9 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData, ImTui::TScreen * scree
                         auto uv1 = cmd_list->VtxBuffer[vidx1].uv;
                         auto uv2 = cmd_list->VtxBuffer[vidx2].uv;
 
-                        auto col0 = cmd_list->VtxBuffer[vidx0].col;
-                        //auto col1 = cmd_list->VtxBuffer[vidx1].col;
-                        //auto col2 = cmd_list->VtxBuffer[vidx2].col;
+                        uint32_t col0 = cmd_list->VtxBuffer[vidx0].col;
+                        // auto col1 = cmd_list->VtxBuffer[vidx1].col;
+                        // auto col2 = cmd_list->VtxBuffer[vidx2].col;
 
                         if (uv0.x != uv1.x || uv0.x != uv2.x || uv1.x != uv2.x ||
                             uv0.y != uv1.y || uv0.y != uv2.y || uv1.y != uv2.y) {
@@ -220,14 +231,14 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData, ImTui::TScreen * scree
                             int yy = (y) + 0;
                             if (xx < clip_rect.x || xx >= clip_rect.z || yy < clip_rect.y || yy >= clip_rect.w) {
                             } else {
-                                auto & cell = screen->data[yy*screen->nx + xx];
-                                cell &= 0xFF000000;
-                                cell |= (col0 & 0xff000000) >> 24;
-                                cell |= ((ImTui::TCell)(rgbToAnsi256(col0, false)) << 16);
+                                uint64_t & cell = screen->data[yy*screen->nx + xx];
+                                cell &= 0xFFFFFF0000000000;
+                                cell |= (uint64_t)(col0 & 0xFF000000) >> 24;
+                                cell |= (uint64_t)(col0 & 0x00FFFFFF) << 16;
                             }
                             i += 3;
                         } else {
-                            drawTriangle(pos0, pos1, pos2, rgbToAnsi256(col0, true), screen);
+                            drawTriangle(pos0, pos1, pos2, col0, screen);
                         }
                     }
                 }
